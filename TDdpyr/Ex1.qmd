@@ -1,0 +1,81 @@
+---
+title: "TDdpyr"
+author: "El Ghali DEBBAGH"
+format: html
+editor: visual
+---
+
+```{r}
+#| echo=FALSE,message=FALSE
+here::i_am("TDdpyr.Rproj")
+library(here)
+library(dplyr)
+```
+
+```{r}
+spotify <- readRDS("top-spotify-songs-from-20102019-by-year.Rds")
+```
+
+## Question 1
+
+```{r}
+s<-count(spotify%>% distinct(title) )
+a<-count(spotify%>% distinct(artist) )
+g<-count(spotify%>% distinct(`top genre`) )
+```
+
+The data set contains `r s` songs.
+
+The data set contains `r a`artists.
+
+The data contains `r g`genres.
+
+## Question 2
+
+```{r}
+#| echo=FALSE,message=FALSE
+spotify |>
+ distinct(year, title) |>
+  count(year) |>
+  knitr::kable(caption= "Number of artists") 
+```
+
+## Question 3
+```{r}
+Topartist <- spotify |>
+  group_by(artist) |>
+  summarise(Num_Songs = n_distinct(title)) |>
+  arrange(desc(Num_Songs)) |>
+  slice(1) |>
+  pull(1)
+```
+ The top artist of the decade is `r Topartist`
+ 
+## Question 4
+```{r}
+spotify |>
+  distinct(title, artist, .keep_all=T) |> 
+  summarise("min" = min(bpm), "max" = max(bpm), "mean"= mean(bpm), "median" = median(bpm)) |>
+  knitr::kable (caption = "Statistics")
+```
+ 
+## Question 5
+```{r}
+library(tidyr)
+spotifiynew <- spotify |> distinct(title, artist, .keep_all=T) |> group_by(year) |> summarise("median of energy" = median(nrgy), "median of danceability"= median(dnce))
+```
+```{r}
+#| echo=FALSE,message=FALSE
+
+library(ggplot2)
+```
+```{r}
+#| echo=FALSE,message=FALSE
+
+spotifiynew_longer <- spotifiynew |> pivot_longer(-year, names_to= "median", values_to = "Values")
+
+
+ggplot(spotifiynew_longer, aes(x= year, y= Values, color=median )) + geom_line()
+```
+
+

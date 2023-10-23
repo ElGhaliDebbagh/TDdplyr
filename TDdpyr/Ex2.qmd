@@ -1,0 +1,69 @@
+---
+title: "Ex2"
+author: "El Ghali DEBBAGH"
+format: html
+editor: visual
+---
+
+
+
+```{r}
+#| echo=FALSE,message=FALSE
+
+here::i_am("TDdpyr.Rproj")
+library(here)
+```
+
+```{r}
+#| echo=FALSE,message=FALSE
+
+dropout <- readRDS("dropout.Rds")
+```
+
+```{r}
+#| echo=FALSE,message=FALSE
+
+library(dplyr)
+```
+
+## Question 1
+```{r}
+#| echo=FALSE,message=FALSE
+dropout |>
+  group_by(`Marital status`, Gender) |>
+  summarise("Median of the enrollment age"=median(`Age at enrollment`))|>
+  knitr::kable(caption = "Median of age at enrollment by gender and martial status")
+```
+
+## Question 2
+```{r}
+#| echo=FALSE,message=FALSE
+
+library(tidyr)
+
+#| echo=FALSE,message=FALSE
+dropout |>
+  group_by(`Marital status`, Gender) |> 
+  summarise("Median of the enrollment age"= median(`Age at enrollment`)) |>
+  pivot_wider(values_from = `Median of the enrollment age`, names_from = Gender) |>
+  knitr::kable(caption = "Median age by marital status for male and female ")
+```
+
+## Question 3
+
+```{r}
+#| echo=FALSE,message=FALSE
+curricular_target <- dropout %>% select(starts_with("Curricular units"), Target)
+columns <- names(curricular_target %>% select(-Target))
+knitr::kable(curricular_target %>%  group_by(Target) %>% summarise(across(all_of(columns), mean)), caption= "Mean of Curricular units by Target")
+```
+
+
+## Question 4
+```{r}
+#| echo=FALSE,message=FALSE,warning=FALSE
+
+knitr::kable(curricular_target %>%  group_by(Target) %>% summarise(across(columns, mean)) %>% pivot_longer(cols = -Target) %>%
+pivot_wider(names_from = Target, values_from = value))
+```
+
